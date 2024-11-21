@@ -1,0 +1,63 @@
+https://github.com/JoaoChoma/POO24/blob/main/SEMANA16/resumo_avaliacao_2.MD
+
+Model -> Onde fica armazenado as entidades (Atributos, getters e setters). Cada classe de entidade corresponde a uma tabela no banco de dados.
+
+@Entity
+public class Produto {
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private Long id;
+    private String nome;
+    private Double preco;
+    // Getters e Setters
+}
+
+
+==========
+Repository (Interface) -> É responsável pela comunicação com o banco de dados (Spring Data JPA), ganyhando métodos para CRUD sem escrever código SQL manualmente
+
+public interface ProdutoRepository extends JpaRepository<Produto, Long> {
+}
+
+==========
+Service -> Contém a lógica de negócio da aplicação e coordena as operações entre o Model e o Repository (Métodos)
+
+@Service
+public class ProdutoService {
+    private final ProdutoRepository produtoRepository;
+
+    public ProdutoService(ProdutoRepository produtoRepository) {
+        this.produtoRepository = produtoRepository;
+    }
+
+    public List<Produto> listarTodos() {
+        return produtoRepository.findAll();
+    }
+    
+    public Produto salvar(Produto produto) {
+        return produtoRepository.save(produto);
+    }
+}
+
+==========
+Controller -> A camada Controller é responsável por gerenciar as requisições HTTP e interagir com a camada Service para manipular os dados. Cada método na classe Controller mapeia uma rota (endpoint) e responde a diferentes métodos HTTP (GET, POST, PUT, DELETE).
+
+@RestController
+@RequestMapping("/produtos")
+public class ProdutoController {
+    private final ProdutoService produtoService;
+
+    public ProdutoController(ProdutoService produtoService) {
+        this.produtoService = produtoService;
+    }
+
+    @GetMapping
+    public List<Produto> listarTodos() {
+        return produtoService.listarTodos();
+    }
+
+    @PostMapping
+    public Produto salvar(@RequestBody Produto produto) {
+        return produtoService.salvar(produto);
+    }
+}
